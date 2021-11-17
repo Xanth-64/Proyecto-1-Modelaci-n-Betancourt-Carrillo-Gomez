@@ -227,7 +227,7 @@ class Grid:
         '''
         slower_person = ''
         #Se resta el tiempo que le toma a Andreina a llegar al destino con el tiempo que le toma a Javier
-        time_difference = path_a[-1] - path_j[-1]
+        time_difference = path_a[1][-1] - path_j[1][-1]
         path_dictionary = {
             'Javier': path_j,
             'Andreina': path_a,
@@ -246,13 +246,18 @@ class Grid:
             slower_person = 'Neiher'
             return path_dictionary['Javier'],path_dictionary['Andreina'],slower_person,time_difference
         time_difference = abs(time_difference)
-        for time_taken in range(len(path_dictionary[faster_person][1])):
+        for i in range(len(path_dictionary[faster_person][1])):
             #Se le agrega un tiempo extra a la persona mas rapida para denotar que saldra unos minutos despues que la persona lenta
-            path_dictionary[faster_person][1] = time_taken + time_difference
+            path_dictionary[faster_person][1][i] = path_dictionary[faster_person][1][i] + time_difference
         updated_path_j,updated_path_a = path_dictionary['Javier'],path_dictionary['Andreina']
         #Se retornan los caminos con pesos actualizados y se indica quien debe salir primero y con cuanto tiempo
         return updated_path_j,updated_path_a,slower_person,time_difference
 
+prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
+print('Javier:', prueba.shortest_path((14,54), (14, 50)))
+print('Andreina:', prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 52))]))
+print("Times fixed ", prueba.align_arriving_times(prueba.shortest_path((14,54), (14, 50)),
+prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 52))])))
 #Para probar el método shortest_path
 """ 
 prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
