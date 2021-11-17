@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter.font import Font
-
+import tkinter.messagebox as msgbox
+from PIL import ImageTk, Image
 class UI(tk.Frame):
     def __init__(self,master : tk.Tk) -> None:
         super().__init__(master=master)
@@ -33,6 +34,9 @@ class UI(tk.Frame):
         # Colocar un texto de título a la ventana principal.
         self.master.title(string='Proyecto 1 Betancourt Carrillo Gómez')
         self.master.resizable(False,False)
+
+        # Añadimos controles de teclado sencillos
+        self.master.bind('<Escape>',self.close)
 
     def crear_componentes(self) -> None:
         # TODO Añadir el codigo para la creacion de los Componentes visuales de la interfaz
@@ -71,7 +75,8 @@ class UI(tk.Frame):
         self.andreina_frame.grid(row=1,rowspan=7,column=0,columnspan=6,sticky='nsew')
         self.javier_frame.grid(row=1,rowspan=7,column=6,columnspan=6,sticky='nsew')
         self.button_frame.grid(row=8,rowspan=4,column=0,columnspan=12,sticky='nsew')
-        self.drawing_frame.grid(row=4,rowspan=6,column=1,columnspan=10,sticky='nsew')
+        self.drawing_frame.config(width=400,height=400)
+        self.drawing_frame.grid(row=4,column=1,rowspan=8,columnspan=10)
         # Dimensionar los Frames Terciarios
 
         self.subtitle_frame.rowconfigure(tuple(range(12)),weight=1)
@@ -83,10 +88,12 @@ class UI(tk.Frame):
         self.button_frame.rowconfigure(tuple(range(12)),weight=1)
         self.button_frame.columnconfigure(tuple(range(12)),weight=1)
 
-        # NOTE El Drawing Frame es de 6 x 6 para poder representar los nodos del grafo
-        self.drawing_frame.rowconfigure(tuple(range(6)),weight=1)
-        self.drawing_frame.columnconfigure(tuple(range(6)),weight=1)
+        # NOTE El Drawing Frame es de 6 x 6 para poder representar los nodos del grafo (Dejamos margen de una 1 fila y 1 columna)
+        self.drawing_frame.rowconfigure(tuple(range(8)),weight=1)
+        self.drawing_frame.columnconfigure(tuple(range(8)),weight=1)
 
+        # Y lo configuramos para que su tamaño no sea determinado por sus hijos
+        self.drawing_frame.grid_propagate(False)
         # Llenar cada uno de los campos con sus respectivos elementos
 
         # Primero definimos fuentes para Titulos, Subtitulos, Labels y Botones
@@ -132,16 +139,67 @@ class UI(tk.Frame):
         self.selection_option_3.grid(row=8,rowspan=4,column=1,columnspan=6,sticky='nsew')
 
         # Finalmente creamos los elementos de la cuadricula
-        self.drawing_elements : list[list[tk.LabelFrame]] = [[tk.LabelFrame(master=self.drawing_frame,height=12,width=12) for _ in range(36) ] for _ in range(36) ]
+        self.drawing_elements : list[list[tk.LabelFrame]] = [[tk.LabelFrame(master=self.drawing_frame,width=15,height=15) for _ in range(36) ] for _ in range(36) ]
         for i in range(6):
             for j in range(6):
-                self.drawing_elements[i][j].grid(row=i,rowspan=1,column=j,columnspan=1)
+                self.drawing_elements[i][j].grid(row=i + 1,rowspan=1,column=j + 1,columnspan=1)
                 self.drawing_elements[i][j].config(bg='#000000')
-        drawing_width = self.drawing_frame.winfo_width()
-        drawing_height = self.drawing_frame.winfo_height()
 
-        # TODO Hacer los calculos vectoriales de las lineas entre los recuadros del grafo
-        
+
+        # Dibujar las Carreras y Calles
+        self.drawing_frame.create_line(60,80,300,80)
+        self.drawing_frame.create_line(60,130,300,130)
+        self.drawing_frame.create_line(60,180,300,180)
+        self.drawing_frame.create_line(60,230,300,230)
+        self.drawing_frame.create_line(60,280,300,280)
+        self.drawing_frame.create_line(60,330,300,330)
+
+        self.drawing_frame.create_line(70,80,70,330)
+        self.drawing_frame.create_line(115,80,115,330)
+        self.drawing_frame.create_line(160,80,160,330)
+        self.drawing_frame.create_line(205,80,205,330)
+        self.drawing_frame.create_line(250,80,250,330)
+        self.drawing_frame.create_line(295,80,295,330)
+
+        # Crear Leyenda
+        self.carrera_title = tk.Label(master=self.drawing_frame,text='Carreras',font=button_font)
+        self.calle_title = tk.Label(master=self.drawing_frame,text='Calles',font=button_font)
+        self.carrera_label_10 = tk.Label(master=self.drawing_frame,text='10',font=credits_font)
+        self.carrera_label_11 = tk.Label(master=self.drawing_frame,text='11',font=credits_font)
+        self.carrera_label_12 = tk.Label(master=self.drawing_frame,text='12',font=credits_font)
+        self.carrera_label_13 = tk.Label(master=self.drawing_frame,text='13',font=credits_font)
+        self.carrera_label_14 = tk.Label(master=self.drawing_frame,text='14',font=credits_font)
+        self.carrera_label_15 = tk.Label(master=self.drawing_frame,text='15',font=credits_font)
+
+        self.calle_label_50 = tk.Label(master=self.drawing_frame,text='50',font=credits_font)
+        self.calle_label_51 = tk.Label(master=self.drawing_frame,text='51',font=credits_font)
+        self.calle_label_52 = tk.Label(master=self.drawing_frame,text='52',font=credits_font)
+        self.calle_label_53 = tk.Label(master=self.drawing_frame,text='53',font=credits_font)
+        self.calle_label_54 = tk.Label(master=self.drawing_frame,text='54',font=credits_font)
+        self.calle_label_55 = tk.Label(master=self.drawing_frame,text='55',font=credits_font)
+
+        #Colocar Leyenda
+        self.calle_label_50.grid(row=6,column=0,rowspan=1,columnspan=1)
+        self.calle_label_51.grid(row=5,column=0,rowspan=1,columnspan=1)
+        self.calle_label_52.grid(row=4,column=0,rowspan=1,columnspan=1)
+        self.calle_label_53.grid(row=3,column=0,rowspan=1,columnspan=1)
+        self.calle_label_54.grid(row=2,column=0,rowspan=1,columnspan=1)
+        self.calle_label_55.grid(row=1,column=0,rowspan=1,columnspan=1)
+
+        self.carrera_label_10.grid(row=7,column=6,rowspan=1,columnspan=1)
+        self.carrera_label_11.grid(row=7,column=5,rowspan=1,columnspan=1)
+        self.carrera_label_12.grid(row=7,column=4,rowspan=1,columnspan=1)
+        self.carrera_label_13.grid(row=7,column=3,rowspan=1,columnspan=1)
+        self.carrera_label_14.grid(row=7,column=2,rowspan=1,columnspan=1)
+        self.carrera_label_15.grid(row=7,column=1,rowspan=1,columnspan=1)
+
+        self.carrera_title.grid(row=0,column=1,rowspan=1,columnspan=6)
+        self.calle_title.grid(row=1,column=7,rowspan=6,columnspan=1)
+
+        #Colocar Brujula 
+        image = ImageTk.PhotoImage(Image.open(fp='./Static/Brujula.png').resize((80,80)))
+        image_frame = tk.Label(master=self.representation_frame,image=image,bg='#F2F6D0')
+        image_frame.grid(row=11,column=8,rowspan=1,columnspan=3)
         #Coloración de la Interfaz
         self.configure(bg='#000000')
         self.master.configure(bg='#000000')
@@ -167,5 +225,6 @@ class UI(tk.Frame):
         pass
 
     def close(self, _=None) -> None:
-        self.master.destroy()
+        if (msgbox.askyesno(title='Cerrar Programa',message='Está seguro que desea cerrar el programa?')):
+            self.master.destroy()
 
