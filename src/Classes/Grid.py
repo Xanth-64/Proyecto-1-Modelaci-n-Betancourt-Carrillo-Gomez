@@ -184,7 +184,7 @@ class Grid:
         # Si no existe arco en comun, se checkea que no exista nodo en comun donde ambos lleguen al mismo tiempo
         if collision_type != 'Edge':
             for node in route_a:
-                if path_j[1][route_j.index(node)] == path_a[1][route_a.index(node)]:
+                if route_j.count(node) != 0 and path_j[1][route_j.index(node)] == path_a[1][route_a.index(node)]:
                     collision_type = 'Node'
                     node_of_conflict = node
                     break
