@@ -151,10 +151,6 @@ class Grid:
         node_of_conflict = None
         edge_of_conflict = None
         collision_type = 'Neither'
-        #Se obtienen todas las coordenadas de la matriz de adyacencia de los nodos por lo que pasa Javier
-        coordinates_path_1 = [self.point_index(path_1[0][i][0],path_1[0][i][1]) for i in range(len(path_1[0])-1) ]
-        #Se obtienen todas las coordenadas de la matriz de adyacencia de los nodos por lo que pasa Andreina
-        coordinates_path_2 = [self.point_index(path_2[0][i][0],path_2[0][i][1]) for i in range(len(path_2[0])-1) ]
 
         #camino de javier sin el nodo destino
         route_j = [path_1[0][i] for i in range(len(path_1[0])-1)]
@@ -171,6 +167,7 @@ class Grid:
                     # (Ej: javier esta en el nodo A en t=17, recorre una calle y ahora se encuentra en el nodo B en t=22, la lista minutes_javer seria [17,18,19,20,21,22] )
                     minutes_javier = [i for i in range(path_1[1][route_j.index(node)],path_1[1][route_j.index(node)]  + 1)]
                     minutes_andreina = [i for i in range(path_2[1][route_a.index(node)], path_2[1][route_a.index(node)] + 1)]
+                    collision_type = 'Edge'
                     edge_of_conflict = (path_2[0][route_a.index(node)],path_2[0][route_a.index(node) + 1])
 
                 #Se comprueba si el nodo anterior de Javier, es igual que el nodo siguiente de Andreina (Andreina va en sentido contrario a Javier)
@@ -233,7 +230,7 @@ class Grid:
          time_difference (number): Tiempo en minutos en el que debe salir mas temprano la persona que tarda mas tiempo
 
         '''
-        slower_person = ''
+        slower_person = -1
         #Se resta el tiempo que le toma a Andreina a llegar al destino con el tiempo que le toma a Javier
         time_difference = path_2[1][-1] - path_1[1][-1]
         path_dictionary = {
@@ -260,6 +257,44 @@ class Grid:
         updated_path_1,updated_path_2 = path_dictionary[1],path_dictionary[2]
         #Se retornan los caminos con pesos actualizados y se indica quien debe salir primero y con cuanto tiempo
         return updated_path_1,updated_path_2,slower_person,time_difference
+    def calcular_caminos(self,starting_node_1,starting_node_2,ending_node):
+        diccionario_personas = {
+    1: 'Javier',
+    2: 'Andreina',
+    3: 'UNK'
+        }
+        slowest_person = 0
+        start_time = 0
+        colision_type = 'Undefined'
+        path_1 = self.shortest_path(starting_node_1,ending_node)
+        path_2 = self.shortest_path(starting_node_2,ending_node)
+        while colision_type != 'Neither':
+            path_1,path_2,slowest_person,start_time = self.align_arriving_times(path_1,path_2)
+            colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
+            if colision_type != 'Neither':
+                if colision_type == 'Node':
+                    node_index = self.point_index(node_of_conflict[0],node_of_conflict[1])
+                    #Eliminar todos los arcos de ese nodo 
+                    #Quitar todos los arcos que conecten al nodo en la matriz del mas lento
+                    for i in range(len(self.coordinates)):
+                        self.matrix[i][node_index] = float('inf')
+                        self.matrix[node_index][i] = float('inf')
+                if colision_type == 'Edge':
+                    edge_index = (self.point_index(edge_of_conflict[0][0],edge_of_conflict[0][1]),self.point_index(edge_of_conflict[1][0],edge_of_conflict[1][1]))
+                    #Quitar el arco en comun que causa el conflicto, Edge of conflict tiene una tupla con el par de nodos
+                    #Poner float inf al peso del arco conflictivo
+                    self.matrix[edge_index[0]][edge_index[1]] = float('inf')
+                if diccionario_personas[slowest_person] == 'Javier':
+                    path_1 = self.shortest_path(starting_node_1,ending_node)
+                elif diccionario_personas[slowest_person] == 'Andreina':
+                    path_2 = self.shortest_path(starting_node_2,ending_node)
+                else:
+                    break
+            else:
+                break
+
+        return path_1,path_2,slowest_person,start_time
+
 
 #Para probar el método shortest_path
 """ 
@@ -269,10 +304,12 @@ print('Andreina:', prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 5
 """
 
 #Para probar el método shortest_path Y OTRAS COSAS MAS B) #LIT
-"""prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
-path_1 = prueba.shortest_path((14,54), (14, 50))
+prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
+print(prueba.calcular_caminos((14,54),(13,52),(12, 50)))
+
+'''path_1 = prueba.shortest_path((14,54), (12, 50))
 print('Javier:', path_1)
-path_2 = prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 52))])
+path_2 = prueba.shortest_path((13,52), (12, 50), 2, [((13, 52), (14, 52))])
 print('Andreina:', path_2)
 path_1,path_2,slower_person,startup_time = prueba.align_arriving_times(path_1,path_2)
 print("Path Javier fixed ", path_1)
@@ -283,4 +320,4 @@ diccionario_personas = {
     3: 'UNK'
 }
 print('Debe salir mas temprano ', diccionario_personas[slower_person], ' concretamente debe salir ', startup_time, ' minutos antes')
-print(prueba.check_collision(path_1,path_2))"""
+print(prueba.check_collision(path_1,path_2))'''
