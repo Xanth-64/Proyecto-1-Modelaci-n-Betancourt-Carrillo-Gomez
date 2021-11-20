@@ -257,19 +257,21 @@ class Grid:
         updated_path_1,updated_path_2 = path_dictionary[1],path_dictionary[2]
         #Se retornan los caminos con pesos actualizados y se indica quien debe salir primero y con cuanto tiempo
         return updated_path_1,updated_path_2,slower_person,time_difference
+
     def calcular_caminos(self,starting_node_1,starting_node_2,ending_node):
         diccionario_personas = {
     1: 'Javier',
     2: 'Andreina',
-    3: 'UNK'
+    0: 'Neither'
         }
-        slowest_person = 0
+        slowest_person = 3
         start_time = 0
         colision_type = 'Undefined'
         path_1 = self.shortest_path(starting_node_1,ending_node)
         path_2 = self.shortest_path(starting_node_2,ending_node)
+        path_1,path_2,slowest_person,start_time = self.align_arriving_times(path_1,path_2)
+        colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
         while colision_type != 'Neither':
-            path_1,path_2,slowest_person,start_time = self.align_arriving_times(path_1,path_2)
             colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
             if colision_type != 'Neither':
                 if colision_type == 'Node':
@@ -285,15 +287,23 @@ class Grid:
                     #Poner float inf al peso del arco conflictivo
                     self.matrix[edge_index[0]][edge_index[1]] = float('inf')
                 if diccionario_personas[slowest_person] == 'Javier':
+                    #Calcular el nuevo camino y checkear si hay conflicto todavia
                     path_1 = self.shortest_path(starting_node_1,ending_node)
+                    path_1,path_2,slowpoke,start_time2 = self.align_arriving_times(path_1,path_2)
+                    start_time =start_time + start_time2 
+                    colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
                 elif diccionario_personas[slowest_person] == 'Andreina':
+                    #calcular el nuevo camino y checkear si hay conflicto todavia
                     path_2 = self.shortest_path(starting_node_2,ending_node)
+                    path_1,path_2,slowpoke,start_time2 = self.align_arriving_times(path_1,path_2)
+                    start_time = start_time + start_time2
+                    colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
                 else:
                     break
             else:
                 break
 
-        return path_1,path_2,slowest_person,start_time
+        return path_1,path_2,diccionario_personas[slowest_person],start_time
 
 
 #Para probar el método shortest_path
@@ -305,7 +315,7 @@ print('Andreina:', prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 5
 
 #Para probar el método shortest_path Y OTRAS COSAS MAS B) #LIT
 prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
-print(prueba.calcular_caminos((14,54),(13,52),(12, 50)))
+print("AAAAAAAA ",prueba.calcular_caminos((14,54),(13,52),(12, 50)))
 
 '''path_1 = prueba.shortest_path((14,54), (12, 50))
 print('Javier:', path_1)
