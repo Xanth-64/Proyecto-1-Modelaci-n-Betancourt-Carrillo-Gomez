@@ -76,7 +76,7 @@ class Grid:
         - (entero): Número de índice del punto dentro de la lista \"coordinates\".
         '''
         return self.coordinates.index((x, y))
-    def shortest_path(self, start, end, extra_cost = 0, blocked = []):
+    def shortest_path(self, start, end, extra_cost = 0):
         '''
         Halla el camino más corto entre dos puntos de la cuadrícula.
 
@@ -86,9 +86,6 @@ class Grid:
         - end (tupla): Coordenadas del final.
         - extra_cost (real): Costo adicional al pasar por los arcos, puede transformarse
         en una ganancia si se define como un valor negativo (vale 0 por defecto).
-        - blocked (lista de tuplas): Indica los trayectos entre dos puntos que deben omitirse
-        a la hora de calcular la ruta más corta. Las tuplas contienen dos tuplas que representan
-        el punto de inicio del trayecto y el punto final del mismo (en ese mismo orden).
 
         Retorna:
 
@@ -101,9 +98,6 @@ class Grid:
         preview = [None for point in self.coordinates]
         current = self.point_index(start[0], start[1])
         fixed_matrix = self.matrix
-        for point in blocked:
-            fixed_matrix[self.point_index(point[0][0], point[0][1])][self.point_index(point[1][0], point[1][1])] = float('inf')
-            fixed_matrix[self.point_index(point[1][0], point[1][1])][self.point_index(point[0][0], point[0][1])] = float('inf')
         path = [[], []]
         while checked.count(False) > 0:
             checked[current] = True
@@ -156,11 +150,11 @@ class Grid:
         route_j = [path_1[0][i] for i in range(len(path_1[0])-1)]
         #Camino de Andreina sin el nodo destino
         route_a = [path_2[0][i] for i in range(len(path_2[0])-1)]
-        # Se recorren los nodos por los que pasa andreina de andreina
+        # Se recorren los nodos por los que pasa andreina
         for node in route_a:
         # Con cada nodo de andreina se Checkea si uno de estos existe en la ruta de Javier,en caso de ser asi se checkea si pasan por el mismo arco
             if route_j.count(node) != 0:
-                #Se compureba si el siguiente nodo de la ruta de ambos es el mismo
+                #Se comprueba si el siguiente nodo de la ruta de ambos es el mismo
                 if path_1[0][route_j.index(node) + 1 ] == path_2[0][route_a.index(node) + 1]:
                     #Inserte calculo de de comprobar los tiempos
                     #minutes javier representa los minutos en los que javier esta recorriendo el arco 
@@ -251,7 +245,7 @@ class Grid:
             slower_person = 0
             return path_dictionary[1],path_dictionary[2],slower_person,time_difference
         time_difference = abs(time_difference)
-        for i in range(1,len(path_dictionary[faster_person][1])):
+        for i in range(0,len(path_dictionary[faster_person][1])):
             #Se le agrega un tiempo extra a la persona mas rapida para denotar que saldra unos minutos despues que la persona lenta
             path_dictionary[faster_person][1][i] = path_dictionary[faster_person][1][i] + time_difference
         updated_path_1,updated_path_2 = path_dictionary[1],path_dictionary[2]
@@ -268,7 +262,7 @@ class Grid:
         start_time = 0
         colision_type = 'Undefined'
         path_1 = self.shortest_path(starting_node_1,ending_node)
-        path_2 = self.shortest_path(starting_node_2,ending_node)
+        path_2 = self.shortest_path(starting_node_2,ending_node,extra_cost=2)
         path_1,path_2,slowest_person,start_time = self.align_arriving_times(path_1,path_2)
         colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
         while colision_type != 'Neither':
@@ -288,46 +282,15 @@ class Grid:
                     self.matrix[edge_index[0]][edge_index[1]] = float('inf')
                 if diccionario_personas[slowest_person] == 'Javier':
                     #Calcular el nuevo camino y checkear si hay conflicto todavia
-                    path_1 = self.shortest_path(starting_node_1,ending_node)
+                    path_2 = self.shortest_path(starting_node_2,ending_node,extra_cost=2)
                     path_1,path_2,slowpoke,start_time2 = self.align_arriving_times(path_1,path_2)
-                    start_time =start_time + start_time2 
+                    start_time =start_time + start_time2
                     colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
                 elif diccionario_personas[slowest_person] == 'Andreina':
                     #calcular el nuevo camino y checkear si hay conflicto todavia
-                    path_2 = self.shortest_path(starting_node_2,ending_node)
+                    path_1 = self.shortest_path(starting_node_2,ending_node)
                     path_1,path_2,slowpoke,start_time2 = self.align_arriving_times(path_1,path_2)
                     start_time = start_time + start_time2
                     colision_type,edge_of_conflict,node_of_conflict = self.check_collision(path_1,path_2)
-                else:
-                    break
-            else:
-                break
 
         return path_1,path_2,diccionario_personas[slowest_person],start_time
-
-
-#Para probar el método shortest_path
-""" 
-prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
-print('Javier:', prueba.shortest_path((14,54), (14, 50)))
-print('Andreina:', prueba.shortest_path((13,52), (14, 50), 2, [((13, 52), (14, 52))]))
-"""
-
-#Para probar el método shortest_path Y OTRAS COSAS MAS B) #LIT
-prueba = Grid(55, 50, 15, 10, [5, 10, 5, 5, 5, 5], [5, 5, 7, 7, 7, 5])
-print("AAAAAAAA ",prueba.calcular_caminos((14,54),(13,52),(12, 50)))
-
-'''path_1 = prueba.shortest_path((14,54), (12, 50))
-print('Javier:', path_1)
-path_2 = prueba.shortest_path((13,52), (12, 50), 2, [((13, 52), (14, 52))])
-print('Andreina:', path_2)
-path_1,path_2,slower_person,startup_time = prueba.align_arriving_times(path_1,path_2)
-print("Path Javier fixed ", path_1)
-print("Path Andreina fixed ", path_2)
-diccionario_personas = {
-    1: 'Javier',
-    2: 'Andreina',
-    3: 'UNK'
-}
-print('Debe salir mas temprano ', diccionario_personas[slower_person], ' concretamente debe salir ', startup_time, ' minutos antes')
-print(prueba.check_collision(path_1,path_2))'''
