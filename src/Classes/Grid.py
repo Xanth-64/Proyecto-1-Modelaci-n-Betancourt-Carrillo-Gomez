@@ -151,27 +151,18 @@ class Grid:
         #Camino de Andreina sin el nodo destino
         route_a = [path_2[0][i] for i in range(len(path_2[0])-1)]
         # Se recorren los nodos por los que pasa andreina
-        for node in route_a:
+        for i,node_a in enumerate(route_a):
         # Con cada nodo de andreina se Checkea si uno de estos existe en la ruta de Javier,en caso de ser asi se checkea si pasan por el mismo arco
-            if route_j.count(node) != 0:
-                #Se comprueba si el siguiente nodo de la ruta de ambos es el mismo
-                if path_1[0][route_j.index(node) + 1 ] == path_2[0][route_a.index(node) + 1]:
-                    #Inserte calculo de de comprobar los tiempos
-                    #minutes javier representa los minutos en los que javier esta recorriendo el arco 
-                    # (Ej: javier esta en el nodo A en t=17, recorre una calle y ahora se encuentra en el nodo B en t=22, la lista minutes_javer seria [17,18,19,20,21,22] )
-                    minutes_javier = [i for i in range(path_1[1][route_j.index(node)],path_1[1][route_j.index(node)]  + 1)]
-                    minutes_andreina = [i for i in range(path_2[1][route_a.index(node)], path_2[1][route_a.index(node)] + 1)]
-                    collision_type = 'Edge'
-                    edge_of_conflict = (path_2[0][route_a.index(node)],path_2[0][route_a.index(node) + 1])
+            for j, node_j in enumerate(route_j) :
+                #Se comprueba si presentan un nodo compartido en sus rutas
+                if node_a == node_j:
+                    # Y se verifica que dichos nodos compartidos sigan el mismo arco
+                    if (path_2[0][i + 1] == path_1[0][j + 1]):
+                    # En caso de que tengan un arco compartido, se verifica si lo recorrieron en tiempos que se solapan
+                        if not((path_2[1][i] >= path_1[1][j + 1]) or (path_2[1][i + 1] >= path_1[1][j + 1])):
+                            collision_type = 'Edge'
+                            edge_of_conflict = (node_a,path_2[0][i + 1])
 
-                #Se comprueba si el nodo anterior de Javier, es igual que el nodo siguiente de Andreina (Andreina va en sentido contrario a Javier)
-                if path_1[0][route_j.index(node) - 1 ] == path_2[0][route_a.index(node) + 1]:
-                    #Inserte calculo de de comprobar los tiempos
-                    minutes_javier = [i for i in range(path_1[1][route_j.index(node)] - 1,path_1[1][route_j.index(node)])]
-                    minutes_andreina = [i for i in range(path_2[1][route_a.index(node)], path_2[1][route_a.index(node)] + 1)]
-                    if self.check_common_elements(minutes_andreina,minutes_javier):
-                        collision_type = 'Edge'
-                        edge_of_conflict = (path_2[0][route_a.index(node)],path_2[0][route_a.index(node) + 1])
         # Si no existe arco en comun, se checkea que no exista nodo en comun donde ambos lleguen al mismo tiempo
         if collision_type != 'Edge':
             for node in route_a:
@@ -180,26 +171,6 @@ class Grid:
                     node_of_conflict = node
                     break
         return collision_type,edge_of_conflict,node_of_conflict
-        
-    def check_common_elements(self,array_1,array_2):
-        '''
-        Funcion que detecta si dos arreglos tienen elementos en comun
-
-        parametros: 
-        arra_1: primer arreglo a comparar
-        array_2: segundo arreglo a comparar
-
-        retorna:
-
-        common_element(boolean): booleano que describe si hay elementos en comun o no
-        Retorna verdadero si existe al menos 1 elemento en comun en ambos, si no retorna false
-        '''
-        common_element = False
-        for element in array_1:
-            if array_2.count(element) != 0:
-                common_element = True
-                break
-        return  common_element
 
     def align_arriving_times(self,path_1,path_2):
         '''
