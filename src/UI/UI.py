@@ -268,9 +268,9 @@ class UI(tk.Frame):
         # Marcamos quien empieza antes y luego Recorremos cada lista de rutas
         if (self.current_path_1[1][0] != self.current_path_2[1][0]):
             if(self.current_slowest == 'Andreina'):
-                self.javier_variable.set(f'Javier debe salir {abs(self.current_path_1[1][0] - self.current_path_2[1][0])} minutos antes.\n')
+                self.javier_variable.set(f'Javier debe salir {abs(self.current_path_1[1][0] - self.current_path_2[1][0])} minutos despues de Andreina.\n')
             else:
-                self.andreina_variable.set(f'Andreina debe salir {abs(self.current_path_1[1][0] - self.current_path_2[1][0])} minutos antes.\n')
+                self.andreina_variable.set(f'Andreina debe salir {abs(self.current_path_1[1][0] - self.current_path_2[1][0])} minutos despues de Javier.\n')
         for i in range(len(self.current_path_1[0]) - 1):
             self.javier_variable.set(f'{self.javier_variable.get()}Ir desde Calle {self.current_path_1[0][i][0]} con Carrera {self.current_path_1[0][i][1]} hasta Calle {self.current_path_1[0][i + 1][0]} con Carrera {self.current_path_1[0][i + 1][1]} (T: {self.current_path_1[1][i]} ~ {self.current_path_1[1][i + 1]})\n')
 
