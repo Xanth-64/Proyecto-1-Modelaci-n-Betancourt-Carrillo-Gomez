@@ -162,7 +162,20 @@ class Grid:
                         if not((path_2[1][i] >= path_1[1][j + 1]) or (path_2[1][i + 1] >= path_1[1][j + 1])):
                             collision_type = 'Edge'
                             edge_of_conflict = (node_a,path_2[0][i + 1])
+                    # Ahora tomamos en cuenta los casos donde se encuentren frente a frente (recorriendo en sentido contrario)
+                    if i >= 1:
+                        if(path_2[0][i - 1] == path_1[0][j + 1]):
+                            # Vemos si lo recorrieron en tiempos que se solapan
+                            if not (path_1[1][j] >= path_2[1][i] or path_2[1][i - 1] >= path_1[1][j + 1]):
+                                collision_type = 'Edge'
+                                edge_of_conflict = (path_1[0][j], path_1[0][j + 1])
 
+                    if j>= 1:
+                        if(path_2[0][i + 1] == path_1[0][j - 1]):
+                            # Vemos si lo recorrieron en tiempos que se solapan
+                            if not (path_2[1][i] >= path_1[1][j] or path_1[1][j - 1] >= path_2[1][i + 1]):
+                                collision_type = 'Edge'
+                                edge_of_conflict = (path_2[0][i], path_2[0][i + 1])
         # Si no existe arco en comun, se checkea que no exista nodo en comun donde ambos lleguen al mismo tiempo
         if collision_type != 'Edge':
             for node in route_a:
@@ -251,6 +264,7 @@ class Grid:
                     #Quitar el arco en comun que causa el conflicto, Edge of conflict tiene una tupla con el par de nodos
                     #Poner float inf al peso del arco conflictivo
                     self.matrix[edge_index[0]][edge_index[1]] = float('inf')
+                    self.matrix[edge_index[1]][edge_index[0]] = float('inf')
                 if diccionario_personas[slowest_person] == 'Javier':
                     #Calcular el nuevo camino y checkear si hay conflicto todavia
                     path_2 = self.shortest_path(starting_node_2,ending_node,extra_cost=2)
