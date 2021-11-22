@@ -215,10 +215,13 @@ class UI(tk.Frame):
         self.javier_legend.grid(row=1,column=7,rowspan=1,columnspan=1,sticky='NSEW')
         self.combination_legend.grid(row=2,column=7,rowspan=1,columnspan=1,sticky='NSEW')
         self.destination_legend.grid(row=3,column=7,rowspan=1,columnspan=1,sticky='NSEW')
-        #Colocar Brujula 
-        image = ImageTk.PhotoImage(Image.open(fp='./Static/Brujula.png').resize((80,80)))
-        image_frame = tk.Label(master=self.representation_frame,image=image,bg='#F2F6D0')
-        image_frame.grid(row=11,column=8,rowspan=1,columnspan=3)
+        try:
+            #Colocar Brujula 
+            image = ImageTk.PhotoImage(Image.open(fp='./Static/Brujula.png').resize((80,80)))
+            image_frame = tk.Label(master=self.representation_frame,image=image,bg='#F2F6D0')
+            image_frame.grid(row=11,column=8,rowspan=1,columnspan=3)
+        except Exception as err:
+            print('Image not Found')
         #Coloración de la Interfaz
         self.configure(bg='#000000')
         self.master.configure(bg='#000000')
